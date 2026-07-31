@@ -1,4 +1,29 @@
-const factions = []
+import Button from "../../components/ui/Button"
+import Card from "../../components/ui/Card"
+
+const factions = [
+  {
+    id: 1,
+    name: "Black Forge",
+    license: "Mining",
+    members: 14,
+    recruiting: true,
+  },
+  {
+    id: 2,
+    name: "Atlas Dynamics",
+    license: "Logistics",
+    members: 8,
+    recruiting: false,
+  },
+  {
+    id: 3,
+    name: "Helios Industrial",
+    license: "Manufacturing",
+    members: 21,
+    recruiting: true,
+  },
+]
 
 function HomePage() {
   return (
@@ -19,20 +44,18 @@ function HomePage() {
           </p>
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            <button className="border border-[#99692E] bg-[#99692E] px-8 py-3 font-bold uppercase tracking-widest text-[#171B1F] transition hover:bg-transparent hover:text-[#D9D9D9]">
-              Continue with Discord
-            </button>
+            <Button>Continue with Discord</Button>
 
-            <button className="border border-[#384A59] bg-[#384A59] px-8 py-3 font-bold uppercase tracking-widest text-[#D9D9D9] transition hover:bg-transparent">
+            <Button variant="secondary">
               Use Invitation Code
-            </button>
+            </Button>
           </div>
         </div>
       </section>
 
       <section className="bg-[#171B1F] px-6 py-16">
         <div className="mx-auto max-w-6xl">
-          <div className="mb-8 flex flex-col gap-4 border-b border-[#384A59] pb-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="mb-10 flex flex-col gap-4 border-b border-[#384A59] pb-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-[#99692E]">
                 Public Directory
@@ -44,37 +67,46 @@ function HomePage() {
             </div>
 
             <p className="text-sm uppercase tracking-widest text-[#737373]">
-              {factions.length} factions active
+              {factions.length} Factions Active
             </p>
           </div>
 
-          {factions.length === 0 ? (
-            <div className="flex min-h-64 items-center justify-center border border-dashed border-[#384A59] bg-[#1D2328] px-6 text-center">
-              <div>
-                <p className="text-xl font-bold uppercase tracking-wider">
-                  No factions registered yet
-                </p>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {factions.map((faction) => (
+              <Card
+                key={faction.id}
+                title={faction.name}
+                subtitle={faction.license}
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#737373]">Members</span>
+                    <span className="font-bold text-[#D9D9D9]">
+                      {faction.members}
+                    </span>
+                  </div>
 
-                <p className="mt-2 text-[#737373]">
-                  Faction names, logos, leaders, licenses, and member counts
-                  will appear here.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {factions.map((faction) => (
-                <article
-                  key={faction.id}
-                  className="border border-[#384A59] bg-[#1D2328] p-6"
-                >
-                  <h3 className="text-2xl font-bold uppercase tracking-wider">
-                    {faction.name}
-                  </h3>
-                </article>
-              ))}
-            </div>
-          )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#737373]">Recruitment</span>
+
+                    <span
+                      className={`font-bold ${
+                        faction.recruiting
+                          ? "text-green-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {faction.recruiting ? "OPEN" : "CLOSED"}
+                    </span>
+                  </div>
+
+                  <Button variant="outline" className="mt-4 w-full">
+                    View Faction
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
     </>
