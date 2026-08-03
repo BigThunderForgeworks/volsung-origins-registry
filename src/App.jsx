@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { HashRouter, Route, Routes } from "react-router-dom"
 import Footer from "./components/layout/Footer"
 import Header from "./components/layout/Header"
 import AdminPage from "./pages/Admin/AdminPage"
@@ -14,7 +14,7 @@ import NotFoundPage from "./pages/NotFound/NotFoundPage"
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <div className="flex min-h-screen flex-col bg-[#171B1F] text-[#D9D9D9]">
         <Header />
 
@@ -57,7 +57,7 @@ function App() {
 
         <Footer />
       </div>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 
