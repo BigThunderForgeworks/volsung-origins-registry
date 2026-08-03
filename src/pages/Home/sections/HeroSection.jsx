@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import Button from "../../../components/ui/Button"
 
 function HeroSection() {
@@ -37,9 +38,20 @@ function HeroSection() {
           </p>
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            <Button>Continue with Discord</Button>
+            <Link to="/login">
+              <Button className="w-full sm:w-auto">
+                Continue with Discord
+              </Button>
+            </Link>
 
-            <Button variant="secondary">Use Invitation Code</Button>
+            <Link to="/login">
+              <Button
+                variant="secondary"
+                className="w-full sm:w-auto"
+              >
+                Continue with Email
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -56,7 +68,7 @@ function HeroSection() {
 
             <div className="flex justify-between border-b border-[#242C32] pb-3">
               <span className="text-[#737373]">Authentication</span>
-              <span className="text-[#D9D9D9]">DISCORD</span>
+              <span className="text-[#D9D9D9]">DISCORD / EMAIL</span>
             </div>
 
             <div className="flex justify-between border-b border-[#242C32] pb-3">

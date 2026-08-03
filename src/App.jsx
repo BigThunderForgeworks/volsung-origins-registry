@@ -3,6 +3,7 @@ import Footer from "./components/layout/Footer"
 import Header from "./components/layout/Header"
 import AdminPage from "./pages/Admin/AdminPage"
 import DashboardPage from "./pages/Dashboard/DashboardPage"
+import CreateFactionPage from "./pages/Factions/CreateFactionPage"
 import FactionPage from "./pages/Factions/FactionPage"
 import HomePage from "./pages/Home/HomePage"
 import LicenseDirectoryPage from "./pages/Licenses/LicenseDirectoryPage"
@@ -20,7 +21,12 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
+
             <Route path="/factions" element={<FactionPage />} />
+            <Route
+              path="/factions/create"
+              element={<CreateFactionPage />}
+            />
 
             <Route
               path="/licenses"
