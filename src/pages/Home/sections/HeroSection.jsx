@@ -1,7 +1,78 @@
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import Button from "../../../components/ui/Button"
+import { supabase } from "../../../lib/supabase"
 
 function HeroSection() {
+  const [user, setUser] = useState(null)
+  const [profile, setProfile] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    loadSession()
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const currentUser = session?.user ?? null
+
+      setUser(currentUser)
+
+      if (currentUser) {
+        loadProfile(currentUser.id)
+      } else {
+        setProfile(null)
+        setIsLoading(false)
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
+
+  async function loadSession() {
+    setIsLoading(true)
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    const currentUser = session?.user ?? null
+
+    setUser(currentUser)
+
+    if (currentUser) {
+      await loadProfile(currentUser.id)
+    } else {
+      setProfile(null)
+      setIsLoading(false)
+    }
+  }
+
+  async function loadProfile(userId) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("role, character_name")
+      .eq("id", userId)
+      .maybeSingle()
+
+    setProfile(data ?? null)
+    setIsLoading(false)
+  }
+
+  const clearance = isLoading
+    ? "VERIFYING"
+    : !user
+      ? "GUEST"
+      : profile?.role === "admin"
+        ? "ADMINISTRATOR"
+        : "PLAYER"
+
+  const authenticationStatus = user
+    ? "AUTHENTICATED"
+    : "DISCORD / EMAIL"
+
   return (
     <section className="relative overflow-hidden border-b border-[#384A59] bg-[#22282D]">
       <div
@@ -38,20 +109,43 @@ function HeroSection() {
           </p>
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            <Link to="/login">
-              <Button className="w-full sm:w-auto">
-                Continue with Discord
-              </Button>
-            </Link>
+            {user ? (
+              <>
+                <Link to="/dashboard">
+                  <Button className="w-full sm:w-auto">
+                    Open Dashboard
+                  </Button>
+                </Link>
 
-            <Link to="/login">
-              <Button
-                variant="secondary"
-                className="w-full sm:w-auto"
-              >
-                Continue with Email
-              </Button>
-            </Link>
+                {profile?.role === "admin" && (
+                  <Link to="/admin">
+                    <Button
+                      variant="secondary"
+                      className="w-full sm:w-auto"
+                    >
+                      Open Administration
+                    </Button>
+                  </Link>
+                )}
+              </>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button className="w-full sm:w-auto">
+                    Continue with Discord
+                  </Button>
+                </Link>
+
+                <Link to="/login">
+                  <Button
+                    variant="secondary"
+                    className="w-full sm:w-auto"
+                  >
+                    Continue with Email
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
@@ -68,7 +162,9 @@ function HeroSection() {
 
             <div className="flex justify-between border-b border-[#242C32] pb-3">
               <span className="text-[#737373]">Authentication</span>
-              <span className="text-[#D9D9D9]">DISCORD / EMAIL</span>
+              <span className="text-[#D9D9D9]">
+                {authenticationStatus}
+              </span>
             </div>
 
             <div className="flex justify-between border-b border-[#242C32] pb-3">
@@ -78,7 +174,7 @@ function HeroSection() {
 
             <div className="flex justify-between">
               <span className="text-[#737373]">Clearance</span>
-              <span className="text-[#99692E]">GUEST</span>
+              <span className="text-[#99692E]">{clearance}</span>
             </div>
           </div>
         </div>

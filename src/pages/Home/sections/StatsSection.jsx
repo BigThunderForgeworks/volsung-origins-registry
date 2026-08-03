@@ -1,31 +1,118 @@
-const stats = [
-  {
-    id: 1,
-    label: "Registered Personnel",
-    value: 124,
-    detail: "Approved registry profiles",
-  },
-  {
-    id: 2,
-    label: "Registered Factions",
-    value: 3,
-    detail: "Recognized industrial groups",
-  },
-  {
-    id: 3,
-    label: "Active Licenses",
-    value: 3,
-    detail: "Faction licenses currently issued",
-  },
-  {
-    id: 4,
-    label: "Open Recruitment",
-    value: 2,
-    detail: "Factions accepting applicants",
-  },
-]
+import { useEffect, useState } from "react"
+import { supabase } from "../../../lib/supabase"
 
 function StatsSection() {
+  const [stats, setStats] = useState([
+    {
+      id: 1,
+      label: "Registered Personnel",
+      value: "—",
+      detail: "Approved registry profiles",
+    },
+    {
+      id: 2,
+      label: "Registered Factions",
+      value: "—",
+      detail: "Recognized industrial groups",
+    },
+    {
+      id: 3,
+      label: "Active Licenses",
+      value: "—",
+      detail: "— Active • — Pending",
+    },
+    {
+      id: 4,
+      label: "Open Recruitment",
+      value: "—",
+      detail: "Factions accepting applicants",
+    },
+  ])
+
+  const [errorMessage, setErrorMessage] = useState("")
+
+  useEffect(() => {
+    loadStats()
+  }, [])
+
+  async function loadStats() {
+    setErrorMessage("")
+
+    const [
+      { count: personnelCount, error: personnelError },
+      { count: factionCount, error: factionError },
+      { count: activeLicenseCount, error: activeLicenseError },
+      { count: pendingLicenseCount, error: pendingLicenseError },
+      { count: recruitingCount, error: recruitingError },
+    ] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("*", { count: "exact", head: true }),
+
+      supabase
+        .from("factions")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "active"),
+
+      supabase
+        .from("faction_licenses")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "active"),
+
+      supabase
+        .from("faction_licenses")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending"),
+
+      supabase
+        .from("factions")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "active")
+        .eq("recruiting", true),
+    ])
+
+    const firstError =
+      personnelError ||
+      factionError ||
+      activeLicenseError ||
+      pendingLicenseError ||
+      recruitingError
+
+    if (firstError) {
+      setErrorMessage(firstError.message)
+      return
+    }
+
+    setStats([
+      {
+        id: 1,
+        label: "Registered Personnel",
+        value: personnelCount ?? 0,
+        detail: "Approved registry profiles",
+      },
+      {
+        id: 2,
+        label: "Registered Factions",
+        value: factionCount ?? 0,
+        detail: "Recognized industrial groups",
+      },
+      {
+        id: 3,
+        label: "Active Licenses",
+        value: activeLicenseCount ?? 0,
+        detail: `${activeLicenseCount ?? 0} Active • ${
+          pendingLicenseCount ?? 0
+        } Pending`,
+      },
+      {
+        id: 4,
+        label: "Open Recruitment",
+        value: recruitingCount ?? 0,
+        detail: "Factions accepting applicants",
+      },
+    ])
+  }
+
   return (
     <section className="border-b border-[#384A59] bg-[#171B1F] px-6 py-12">
       <div className="mx-auto max-w-6xl">
@@ -60,9 +147,11 @@ function StatsSection() {
           ))}
         </div>
 
-        <p className="mt-4 text-xs uppercase tracking-widest text-[#737373]">
-          Development data shown until the live registry is connected.
-        </p>
+        {errorMessage && (
+          <div className="mt-4 border border-red-700 bg-red-900/20 px-5 py-4 text-sm text-red-400">
+            Failed to load registry statistics: {errorMessage}
+          </div>
+        )}
       </div>
     </section>
   )

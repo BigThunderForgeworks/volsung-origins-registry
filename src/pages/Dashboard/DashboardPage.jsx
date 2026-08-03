@@ -13,10 +13,14 @@ function DashboardPage() {
   const [membership, setMembership] = useState(null)
   const [faction, setFaction] = useState(null)
   const [factionLicenses, setFactionLicenses] = useState([])
+  const [pendingMemberships, setPendingMemberships] = useState([])
 
   const [characterName, setCharacterName] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [reviewingMembershipId, setReviewingMembershipId] =
+    useState(null)
+
   const [message, setMessage] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
 
@@ -97,11 +101,12 @@ function DashboardPage() {
     setProfile(currentProfile)
     setCharacterName(currentProfile.character_name ?? "")
 
-    const { data: membershipRecord, error: membershipError } = await supabase
-      .from("faction_memberships")
-      .select("*")
-      .eq("profile_id", currentUser.id)
-      .maybeSingle()
+    const { data: membershipRecord, error: membershipError } =
+      await supabase
+        .from("faction_memberships")
+        .select("*")
+        .eq("profile_id", currentUser.id)
+        .maybeSingle()
 
     if (membershipError) {
       setErrorMessage(membershipError.message)
@@ -110,6 +115,9 @@ function DashboardPage() {
     }
 
     setMembership(membershipRecord)
+    setFaction(null)
+    setFactionLicenses([])
+    setPendingMemberships([])
 
     if (membershipRecord?.faction_id) {
       const { data: factionRecord, error: factionError } = await supabase
@@ -148,6 +156,40 @@ function DashboardPage() {
       }
 
       setFactionLicenses(licenseRecords ?? [])
+
+      if (
+        membershipRecord.member_role === "owner" &&
+        membershipRecord.status === "approved"
+      ) {
+        const {
+          data: pendingMembershipRecords,
+          error: pendingMembershipError,
+        } = await supabase
+          .from("faction_memberships")
+          .select(`
+            id,
+            profile_id,
+            member_role,
+            status,
+            created_at,
+            profiles (
+              character_name,
+              discord_username,
+              avatar_url
+            )
+          `)
+          .eq("faction_id", membershipRecord.faction_id)
+          .eq("status", "pending")
+          .order("created_at", { ascending: true })
+
+        if (pendingMembershipError) {
+          setErrorMessage(pendingMembershipError.message)
+          setIsLoading(false)
+          return
+        }
+
+        setPendingMemberships(pendingMembershipRecords ?? [])
+      }
     }
 
     setIsLoading(false)
@@ -189,6 +231,40 @@ function DashboardPage() {
     setIsSaving(false)
   }
 
+  async function handleReviewMembership(membershipId, decision) {
+    setMessage("")
+    setErrorMessage("")
+    setReviewingMembershipId(membershipId)
+
+    const { error } = await supabase.rpc(
+      "review_faction_membership",
+      {
+        p_membership_id: membershipId,
+        p_decision: decision,
+      }
+    )
+
+    if (error) {
+      setErrorMessage(error.message)
+      setReviewingMembershipId(null)
+      return
+    }
+
+    setPendingMemberships((currentRequests) =>
+      currentRequests.filter(
+        (request) => request.id !== membershipId
+      )
+    )
+
+    setMessage(
+      decision === "approved"
+        ? "Membership request approved."
+        : "Membership request rejected."
+    )
+
+    setReviewingMembershipId(null)
+  }
+
   async function handleLogout() {
     await supabase.auth.signOut()
     navigate("/")
@@ -209,6 +285,9 @@ function DashboardPage() {
   }
 
   const needsCharacterName = !profile?.character_name
+  const isFactionOwner =
+    membership?.member_role === "owner" &&
+    membership?.status === "approved"
 
   return (
     <section className="bg-[#171B1F] px-6 py-16 text-[#D9D9D9]">
@@ -255,7 +334,9 @@ function DashboardPage() {
                 id="character-name"
                 type="text"
                 value={characterName}
-                onChange={(event) => setCharacterName(event.target.value)}
+                onChange={(event) =>
+                  setCharacterName(event.target.value)
+                }
                 placeholder="Enter your in-game name"
                 className="mt-3 w-full border border-[#384A59] bg-[#111519] px-4 py-3 text-[#D9D9D9] outline-none transition placeholder:text-[#737373] focus:border-[#99692E]"
               />
@@ -311,7 +392,9 @@ function DashboardPage() {
                   id="edit-character-name"
                   type="text"
                   value={characterName}
-                  onChange={(event) => setCharacterName(event.target.value)}
+                  onChange={(event) =>
+                    setCharacterName(event.target.value)
+                  }
                   className="mt-3 w-full border border-[#384A59] bg-[#111519] px-4 py-3 text-[#D9D9D9] outline-none transition focus:border-[#99692E]"
                 />
 
@@ -326,126 +409,235 @@ function DashboardPage() {
               </form>
             </Card>
 
-            {faction ? (
-              <Card
-                title={faction.name}
-                subtitle={`Faction ${faction.short_name}`}
-              >
-                <div className="grid gap-6 sm:grid-cols-[140px_1fr]">
-                  <div>
-                    {faction.logo_url ? (
-                      <img
-                        src={faction.logo_url}
-                        alt={`${faction.name} logo`}
-                        className="aspect-square w-full border border-[#384A59] object-cover"
-                      />
-                    ) : (
-                      <div className="flex aspect-square w-full items-center justify-center border border-[#384A59] bg-[#111519] text-center text-sm uppercase tracking-wider text-[#737373]">
-                        No Logo
+            <div className="space-y-8">
+              {faction ? (
+                <Card
+                  title={faction.name}
+                  subtitle={`Faction ${faction.short_name}`}
+                >
+                  <div className="grid gap-6 sm:grid-cols-[140px_1fr]">
+                    <div>
+                      {faction.logo_url ? (
+                        <img
+                          src={faction.logo_url}
+                          alt={`${faction.name} logo`}
+                          className="aspect-square w-full border border-[#384A59] object-cover"
+                        />
+                      ) : (
+                        <div className="flex aspect-square w-full items-center justify-center border border-[#384A59] bg-[#111519] text-center text-sm uppercase tracking-wider text-[#737373]">
+                          No Logo
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <div className="flex flex-wrap gap-3">
+                        <Badge variant="gold">
+                          {membership?.member_role ?? "Member"}
+                        </Badge>
+
+                        <Badge
+                          variant={
+                            faction.recruiting ? "success" : "danger"
+                          }
+                        >
+                          {faction.recruiting
+                            ? "Recruiting"
+                            : "Recruitment Closed"}
+                        </Badge>
                       </div>
-                    )}
-                  </div>
 
-                  <div>
-                    <div className="flex flex-wrap gap-3">
-                      <Badge variant="gold">
-                        {membership?.member_role ?? "Member"}
-                      </Badge>
+                      {faction.motto && (
+                        <p className="mt-5 text-lg italic text-[#D9D9D9]">
+                          “{faction.motto}”
+                        </p>
+                      )}
 
-                      <Badge
-                        variant={
-                          faction.recruiting ? "success" : "danger"
+                      <p className="mt-5 leading-7 text-[#737373]">
+                        {faction.description}
+                      </p>
+
+                      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                        <div className="border border-[#384A59] bg-[#111519] p-4">
+                          <p className="text-xs uppercase tracking-[0.2em] text-[#737373]">
+                            Founder
+                          </p>
+
+                          <p className="mt-2 font-bold">
+                            {faction.founder_name}
+                          </p>
+                        </div>
+
+                        <div className="border border-[#384A59] bg-[#111519] p-4">
+                          <p className="text-xs uppercase tracking-[0.2em] text-[#737373]">
+                            Founded
+                          </p>
+
+                          <p className="mt-2 font-bold">
+                            {faction.founded_date}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-6">
+                        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#737373]">
+                          Operating Licenses
+                        </p>
+
+                        <div className="mt-3 flex flex-wrap gap-3">
+                          {factionLicenses.length > 0 ? (
+                            factionLicenses.map((licenseRecord) => (
+                              <Badge
+                                key={licenseRecord.id}
+                                variant={
+                                  licenseRecord.status === "active"
+                                    ? "success"
+                                    : licenseRecord.status === "rejected"
+                                      ? "danger"
+                                      : "gold"
+                                }
+                              >
+                                {licenseRecord.license_types?.name ??
+                                  "Unknown License"}{" "}
+                                - {licenseRecord.status}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-sm text-[#737373]">
+                              No licenses assigned.
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        className="mt-6"
+                        onClick={() =>
+                          navigate(
+                            `/factions/${faction.short_name}`
+                          )
                         }
                       >
-                        {faction.recruiting
-                          ? "Recruiting"
-                          : "Recruitment Closed"}
-                      </Badge>
-                    </div>
-
-                    {faction.motto && (
-                      <p className="mt-5 text-lg italic text-[#D9D9D9]">
-                        “{faction.motto}”
-                      </p>
-                    )}
-
-                    <p className="mt-5 leading-7 text-[#737373]">
-                      {faction.description}
-                    </p>
-
-                    <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                      <div className="border border-[#384A59] bg-[#111519] p-4">
-                        <p className="text-xs uppercase tracking-[0.2em] text-[#737373]">
-                          Founder
-                        </p>
-                        <p className="mt-2 font-bold">
-                          {faction.founder_name}
-                        </p>
-                      </div>
-
-                      <div className="border border-[#384A59] bg-[#111519] p-4">
-                        <p className="text-xs uppercase tracking-[0.2em] text-[#737373]">
-                          Founded
-                        </p>
-                        <p className="mt-2 font-bold">
-                          {faction.founded_date}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-6">
-                      <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#737373]">
-                        Operating Licenses
-                      </p>
-
-                      <div className="mt-3 flex flex-wrap gap-3">
-                        {factionLicenses.length > 0 ? (
-                          factionLicenses.map((licenseRecord) => (
-                            <Badge
-                              key={licenseRecord.id}
-                              variant={
-                                licenseRecord.status === "active"
-                                  ? "success"
-                                  : licenseRecord.status === "rejected"
-                                    ? "danger"
-                                    : "gold"
-                              }
-                            >
-                              {licenseRecord.license_types?.name ??
-                                "Unknown License"}{" "}
-                              - {licenseRecord.status}
-                            </Badge>
-                          ))
-                        ) : (
-                          <span className="text-sm text-[#737373]">
-                            No licenses assigned.
-                          </span>
-                        )}
-                      </div>
+                        View Faction Registry
+                      </Button>
                     </div>
                   </div>
-                </div>
-              </Card>
-            ) : (
-              <Card
-                title="Faction Status"
-                subtitle="Industrial affiliation"
-              >
-                <p className="leading-7 text-[#737373]">
-                  You are not currently affiliated with a registered faction.
-                </p>
+                </Card>
+              ) : (
+                <Card
+                  title="Faction Status"
+                  subtitle="Industrial affiliation"
+                >
+                  <p className="leading-7 text-[#737373]">
+                    You are not currently affiliated with a registered
+                    faction.
+                  </p>
 
-                <div className="mt-8 flex flex-wrap gap-4">
-                  <Button onClick={() => navigate("/factions/create")}>
-                    Create a Faction
-                  </Button>
+                  <div className="mt-8 flex flex-wrap gap-4">
+                    <Button
+                      onClick={() => navigate("/factions/create")}
+                    >
+                      Create a Faction
+                    </Button>
 
-                  <Button variant="secondary">
-                    Join an Existing Faction
-                  </Button>
-                </div>
-              </Card>
-            )}
+                    <Button
+                      variant="secondary"
+                      onClick={() => navigate("/")}
+                    >
+                      Join an Existing Faction
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              {faction && isFactionOwner && (
+                <Card
+                  title="Pending Membership Requests"
+                  subtitle="Faction owner review"
+                >
+                  {pendingMemberships.length > 0 ? (
+                    <div className="space-y-4">
+                      {pendingMemberships.map((request) => {
+                        const applicantName =
+                          request.profiles?.character_name ??
+                          request.profiles?.discord_username ??
+                          "Unknown Applicant"
+
+                        const isReviewing =
+                          reviewingMembershipId === request.id
+
+                        return (
+                          <div
+                            key={request.id}
+                            className="flex flex-col gap-5 border-b border-[#384A59] pb-5 last:border-b-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+                          >
+                            <div className="flex items-center gap-4">
+                              {request.profiles?.avatar_url ? (
+                                <img
+                                  src={request.profiles.avatar_url}
+                                  alt=""
+                                  className="h-14 w-14 border border-[#384A59] object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-14 w-14 items-center justify-center border border-[#384A59] bg-[#111519] text-xl font-bold text-[#99692E]">
+                                  {applicantName
+                                    .charAt(0)
+                                    .toUpperCase()}
+                                </div>
+                              )}
+
+                              <div>
+                                <p className="font-bold">
+                                  {applicantName}
+                                </p>
+
+                                <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[#737373]">
+                                  Membership requested
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-3">
+                              <Button
+                                disabled={isReviewing}
+                                onClick={() =>
+                                  handleReviewMembership(
+                                    request.id,
+                                    "approved"
+                                  )
+                                }
+                              >
+                                {isReviewing
+                                  ? "Reviewing..."
+                                  : "Approve"}
+                              </Button>
+
+                              <Button
+                                variant="outline"
+                                disabled={isReviewing}
+                                onClick={() =>
+                                  handleReviewMembership(
+                                    request.id,
+                                    "rejected"
+                                  )
+                                }
+                              >
+                                Reject
+                              </Button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <p className="leading-7 text-[#737373]">
+                      There are no pending membership requests.
+                    </p>
+                  )}
+                </Card>
+              )}
+            </div>
           </div>
         )}
 
