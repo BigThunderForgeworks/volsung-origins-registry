@@ -5,7 +5,7 @@ import Card from "../../components/ui/Card"
 import { supabase } from "../../lib/supabase"
 
 const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/
-const FACTION_TAG_PATTERN = /^[A-Z0-9]{4}$/
+const FACTION_TAG_PATTERN = /^[A-Z]{2,3}$/
 
 function getTodayDate() {
   const now = new Date()
@@ -261,7 +261,7 @@ function CreateFactionPage() {
 
     if (!FACTION_TAG_PATTERN.test(normalizedTag)) {
       setErrorMessage(
-        "Faction tag must contain exactly four letters or numbers."
+        "Faction tag must contain two to three letters."
       )
       return
     }
