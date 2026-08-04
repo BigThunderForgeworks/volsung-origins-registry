@@ -376,7 +376,7 @@ function CreateFactionPage() {
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   placeholder="Example: Volsung Industries"
-                  maxLength={80}
+                  maxLength={50}
                   className="mt-3 w-full border border-[#384A59] bg-[#111519] px-4 py-3 outline-none transition placeholder:text-[#737373] focus:border-[#99692E]"
                 />
               </div>
@@ -388,7 +388,7 @@ function CreateFactionPage() {
                 >
                   Faction Tag
                 </label>
-
+              
                 <input
                   id="faction-tag"
                   type="text"
@@ -397,18 +397,20 @@ function CreateFactionPage() {
                     setShortName(
                       event.target.value
                         .toUpperCase()
-                        .replace(/[^A-Z0-9]/g, "")
-                        .slice(0, 4)
+                        .replace(/[^A-Z]/g, "")
+                        .slice(0, 3)
                     )
                   }
-                  placeholder="VOLS"
-                  maxLength={4}
+                  placeholder="BTF"
+                  minLength={2}
+                  maxLength={3}
+                  required
                   className="mt-3 w-full border border-[#384A59] bg-[#111519] px-4 py-3 uppercase outline-none transition placeholder:text-[#737373] focus:border-[#99692E]"
                 />
-
+              
                 <p className="mt-2 text-sm text-[#737373]">
-                  Exactly four letters or numbers, matching the SE1 faction-tag
-                  limit.
+                  Two or three letters only. Faction tags are automatically converted to
+                  uppercase and must be unique.
                 </p>
               </div>
 
