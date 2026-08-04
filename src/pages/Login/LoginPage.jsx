@@ -9,6 +9,8 @@ function LoginPage() {
   const [errorMessage, setErrorMessage] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
+  const authRedirectUrl = `${window.location.origin}${import.meta.env.BASE_URL}`
+
   async function handleDiscordLogin() {
     setMessage("")
     setErrorMessage("")
@@ -17,7 +19,7 @@ function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "discord",
       options: {
-        redirectTo: `${window.location.origin}/dashboard`,
+        redirectTo: authRedirectUrl,
       },
     })
 
@@ -33,7 +35,9 @@ function LoginPage() {
     setMessage("")
     setErrorMessage("")
 
-    if (!email.trim()) {
+    const normalizedEmail = email.trim()
+
+    if (!normalizedEmail) {
       setErrorMessage("Enter an email address.")
       return
     }
@@ -41,9 +45,9 @@ function LoginPage() {
     setIsLoading(true)
 
     const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
+      email: normalizedEmail,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: authRedirectUrl,
       },
     })
 
