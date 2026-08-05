@@ -95,6 +95,13 @@ function Footer() {
             The official personnel, faction, licensing, and industrial registry
             for the Volsung Origins Space Engineers server.
           </p>
+
+          <p className="mt-5 max-w-sm text-xs uppercase tracking-[0.18em] text-[#737373]">
+            Designed and developed by{" "}
+            <span className="text-[#99692E]">
+              Big Thunder Forgeworks
+            </span>
+          </p>
         </div>
 
         <div>
@@ -108,6 +115,8 @@ function Footer() {
             <FooterLink to="/factions">Factions</FooterLink>
 
             <FooterLink to="/licenses">Licenses</FooterLink>
+
+            <FooterLink to="/news">Colonial News</FooterLink>
 
             {!isLoading && !user && (
               <FooterLink to="/login">
@@ -167,6 +176,16 @@ function Footer() {
               </span>
             </div>
 
+            <div className="flex items-center justify-between border-b border-[#242C32] pb-3">
+              <span className="text-[#737373]">
+                News Feed
+              </span>
+
+              <span className="font-bold uppercase text-green-400">
+                Online
+              </span>
+            </div>
+
             <div className="flex items-center justify-between">
               <span className="text-[#737373]">
                 Version
@@ -184,7 +203,7 @@ function Footer() {
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-5 text-xs uppercase tracking-wider text-[#737373] sm:flex-row sm:items-center sm:justify-between">
           <p>© {currentYear} Volsung Industries</p>
 
-          <p>Forged for Volsung Origins</p>
+          <p>Forged by Big Thunder Forgeworks</p>
 
           <p>Powered by React • Supabase</p>
         </div>

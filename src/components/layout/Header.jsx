@@ -94,6 +94,10 @@ function Header() {
             Licenses
           </NavLink>
 
+          <NavLink to="/news" className={getNavClass}>
+            News
+          </NavLink>
+
           {!isLoading && !user && (
             <NavLink to="/login" className={getNavClass}>
               Login

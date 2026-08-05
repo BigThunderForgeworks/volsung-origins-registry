@@ -11,6 +11,7 @@ import HomePage from "./pages/Home/HomePage"
 import LicenseDirectoryPage from "./pages/Licenses/LicenseDirectoryPage"
 import LicensePage from "./pages/Licenses/LicensePage"
 import LoginPage from "./pages/Login/LoginPage"
+import NewsPage from "./pages/News/NewsPage"
 import NotFoundPage from "./pages/NotFound/NotFoundPage"
 
 function App() {
@@ -53,6 +54,8 @@ function App() {
               path="/licenses/:licenseSlug"
               element={<LicensePage />}
             />
+
+            <Route path="/news" element={<NewsPage />} />
 
             <Route path="/admin" element={<AdminPage />} />
 
