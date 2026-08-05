@@ -510,17 +510,27 @@ function DashboardPage() {
                         </div>
                       </div>
 
-                      <Button
-                        variant="outline"
-                        className="mt-6"
-                        onClick={() =>
-                          navigate(
-                            `/factions/${faction.short_name}`
-                          )
-                        }
-                      >
-                        View Faction Registry
-                      </Button>
+                      <div className="mt-6 flex flex-wrap gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() =>
+                            navigate(`/factions/${faction.short_name}`)
+                          }
+                        >
+                          View Faction Registry
+                        </Button>
+
+                        {isFactionOwner && (
+                          <Button
+                            variant="secondary"
+                            onClick={() =>
+                              navigate(`/factions/${faction.short_name}/edit`)
+                            }
+                          >
+                            Edit Faction
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Card>

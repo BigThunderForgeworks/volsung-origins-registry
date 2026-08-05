@@ -4,6 +4,7 @@ import Header from "./components/layout/Header"
 import AdminPage from "./pages/Admin/AdminPage"
 import DashboardPage from "./pages/Dashboard/DashboardPage"
 import CreateFactionPage from "./pages/Factions/CreateFactionPage"
+import EditFactionPage from "./pages/Factions/EditFactionPage"
 import FactionPage from "./pages/Factions/FactionPage"
 import FactionRegistryPage from "./pages/Factions/FactionRegistryPage"
 import HomePage from "./pages/Home/HomePage"
@@ -34,6 +35,11 @@ function App() {
             />
 
             <Route
+              path="/factions/:factionTag/edit"
+              element={<EditFactionPage />}
+            />
+
+            <Route
               path="/factions/:factionTag"
               element={<FactionRegistryPage />}
             />
@@ -50,7 +56,6 @@ function App() {
 
             <Route path="/admin" element={<AdminPage />} />
 
-            {/* Catch-all 404 */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </div>
