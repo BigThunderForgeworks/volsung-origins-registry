@@ -9,6 +9,7 @@ import RegisteredFactionsCard from "./components/RegisteredFactionsCard"
 import PendingMembershipsCard from "./components/PendingMembershipsCard"
 import PendingLicensesCard from "./components/PendingLicensesCard"
 import AdminStats from "./components/AdminStats"
+import LoreAdminPanel from "../Lore/admin/LoreAdminPanel"
 
 function AdminPage() {
   const navigate = useNavigate()
@@ -455,22 +456,28 @@ async function handleRemoveFactionMember(person) {
         
         <AdminStats stats={stats} />
         
+
         <div className="mt-10 space-y-8">
-          
+
+          <LoreAdminPanel />
+
           <PendingLicensesCard
             pendingLicenses={pendingLicenses}
             reviewingLicenseId={reviewingLicenseId}
             onReviewLicense={handleReviewLicense}
           />
+
           <PendingMembershipsCard
             pendingMemberships={pendingMemberships}
             reviewingMembershipId={reviewingMembershipId}
             onReviewMembership={handleReviewMembership}
           />
+
           <RegisteredFactionsCard
             factions={factions}
             onNavigate={navigate}
           />
+
           <PersonnelDirectory
             personnel={personnel}
             selectedPerson={selectedPerson}
@@ -480,6 +487,7 @@ async function handleRemoveFactionMember(person) {
             onNavigate={navigate}
             onRemoveFactionMember={handleRemoveFactionMember}
           />
+
         </div>
 
         {message && (

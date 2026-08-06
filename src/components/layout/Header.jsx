@@ -98,6 +98,10 @@ function Header() {
             News
           </NavLink>
 
+          <NavLink to="/lore" className={getNavClass}>
+            Lore
+          </NavLink>
+
           {!isLoading && !user && (
             <NavLink to="/login" className={getNavClass}>
               Login

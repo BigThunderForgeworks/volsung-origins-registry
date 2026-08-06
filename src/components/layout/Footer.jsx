@@ -118,6 +118,10 @@ function Footer() {
 
             <FooterLink to="/news">Colonial News</FooterLink>
 
+            <FooterLink to="/lore">
+              Lore Archive
+            </FooterLink>
+
             {!isLoading && !user && (
               <FooterLink to="/login">
                 Login
