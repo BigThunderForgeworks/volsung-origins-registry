@@ -196,7 +196,7 @@ function Footer() {
               </span>
 
               <span className="font-bold text-[#99692E]">
-                v1.0.0
+                v1.1.0
               </span>
             </div>
           </div>
