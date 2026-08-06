@@ -54,7 +54,8 @@ function FactionSection() {
             name,
             short_name
           )
-        `),
+        `)
+        .eq("status", "active"),
     ])
 
     const firstError =

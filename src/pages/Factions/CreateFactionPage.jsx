@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import Button from "../../components/ui/Button"
 import Card from "../../components/ui/Card"
 import { supabase } from "../../lib/supabase"
+import FactionLicenseSelector from "./components/FactionLicenseSelector"
 
 const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/
 const FACTION_TAG_PATTERN = /^[A-Z]{2,3}$/
@@ -124,11 +125,17 @@ function CreateFactionPage() {
     setLicenses(licenseRecords ?? [])
     setIsLoading(false)
   }
-
+  
   function toggleLicense(licenseId) {
+    setErrorMessage("")
+
     setSelectedLicenseIds((currentIds) => {
       if (currentIds.includes(licenseId)) {
         return currentIds.filter((id) => id !== licenseId)
+      }
+
+      if (currentIds.length >= 2) {
+        return currentIds
       }
 
       return [...currentIds, licenseId]
@@ -288,6 +295,11 @@ function CreateFactionPage() {
 
     if (selectedLicenseIds.length === 0) {
       setErrorMessage("Select at least one operating license.")
+      return
+    }
+
+    if (selectedLicenseIds.length > 2) {
+      setErrorMessage("Select no more than two operating licenses.")
       return
     }
 
@@ -644,57 +656,13 @@ function CreateFactionPage() {
 
           <Card
             title="Operating Licenses"
-            subtitle="Select one or more"
+            subtitle="Select one or two"
           >
-            <p className="leading-7 text-[#737373]">
-              Select every license under which this faction will operate.
-            </p>
-
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {licenses.map((license) => {
-                const isSelected = selectedLicenseIds.includes(license.id)
-
-                return (
-                  <button
-                    key={license.id}
-                    type="button"
-                    aria-pressed={isSelected}
-                    onClick={() => toggleLicense(license.id)}
-                    className={`border p-5 text-left transition ${
-                      isSelected
-                        ? "border-[#99692E] bg-[#99692E]/15"
-                        : "border-[#384A59] bg-[#111519] hover:border-[#99692E]"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-lg font-bold uppercase tracking-wider">
-                          {license.name}
-                        </p>
-
-                        <p className="mt-2 text-xs font-bold uppercase tracking-[0.2em] text-[#99692E]">
-                          {license.short_name}
-                        </p>
-                      </div>
-
-                      <span
-                        className={`flex h-6 w-6 items-center justify-center border text-sm font-bold ${
-                          isSelected
-                            ? "border-[#99692E] bg-[#99692E] text-[#171B1F]"
-                            : "border-[#384A59] text-transparent"
-                        }`}
-                      >
-                        ✓
-                      </span>
-                    </div>
-
-                    <p className="mt-4 text-sm leading-6 text-[#737373]">
-                      {license.summary}
-                    </p>
-                  </button>
-                )
-              })}
-            </div>
+            <FactionLicenseSelector
+              licenses={licenses}
+              selectedLicenseIds={selectedLicenseIds}
+              onToggleLicense={toggleLicense}
+            />
           </Card>
 
           {errorMessage && (

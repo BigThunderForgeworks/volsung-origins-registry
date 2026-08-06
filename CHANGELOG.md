@@ -56,3 +56,24 @@ All notable changes to the Volsung Origins Registry project will be documented i
 - Additional administrator tools
 - User experience refinements
 - Additional visual polish
+
+
+# Changelog
+
+## v1.1.0 - License Management Update
+
+### Added
+- Faction owners can request additional operating licenses.
+- Faction owners can cancel pending license requests.
+- Two-license limit enforced for all factions.
+- New faction creation now limits license selection to two.
+
+### Changed
+- Public faction pages display only approved licenses.
+- Homepage faction cards display only approved licenses.
+- Dashboard separates approved licenses from pending requests.
+- License management moved into reusable components for improved maintainability.
+
+### Fixed
+- Pending and rejected licenses no longer appear on public faction listings.
+- License counts now reflect only approved operating licenses.

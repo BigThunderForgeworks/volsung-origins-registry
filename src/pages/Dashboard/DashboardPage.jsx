@@ -4,6 +4,7 @@ import Badge from "../../components/ui/Badge"
 import Button from "../../components/ui/Button"
 import Card from "../../components/ui/Card"
 import { supabase } from "../../lib/supabase"
+import FactionLicenseManager from "./components/FactionLicenseManager"
 
 function DashboardPage() {
   const navigate = useNavigate()
@@ -12,7 +13,6 @@ function DashboardPage() {
   const [profile, setProfile] = useState(null)
   const [membership, setMembership] = useState(null)
   const [faction, setFaction] = useState(null)
-  const [factionLicenses, setFactionLicenses] = useState([])
   const [pendingMemberships, setPendingMemberships] = useState([])
 
   const [characterName, setCharacterName] = useState("")
@@ -116,7 +116,6 @@ function DashboardPage() {
 
     setMembership(membershipRecord)
     setFaction(null)
-    setFactionLicenses([])
     setPendingMemberships([])
 
     if (membershipRecord?.faction_id) {
@@ -133,29 +132,6 @@ function DashboardPage() {
       }
 
       setFaction(factionRecord)
-
-      const { data: licenseRecords, error: licenseError } = await supabase
-        .from("faction_licenses")
-        .select(`
-          id,
-          status,
-          license_types (
-            id,
-            name,
-            short_name,
-            slug
-          )
-        `)
-        .eq("faction_id", membershipRecord.faction_id)
-        .order("created_at")
-
-      if (licenseError) {
-        setErrorMessage(licenseError.message)
-        setIsLoading(false)
-        return
-      }
-
-      setFactionLicenses(licenseRecords ?? [])
 
       if (
         membershipRecord.member_role === "owner" &&
@@ -479,36 +455,10 @@ function DashboardPage() {
                         </div>
                       </div>
 
-                      <div className="mt-6">
-                        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#737373]">
-                          Operating Licenses
-                        </p>
-
-                        <div className="mt-3 flex flex-wrap gap-3">
-                          {factionLicenses.length > 0 ? (
-                            factionLicenses.map((licenseRecord) => (
-                              <Badge
-                                key={licenseRecord.id}
-                                variant={
-                                  licenseRecord.status === "active"
-                                    ? "success"
-                                    : licenseRecord.status === "rejected"
-                                      ? "danger"
-                                      : "gold"
-                                }
-                              >
-                                {licenseRecord.license_types?.name ??
-                                  "Unknown License"}{" "}
-                                - {licenseRecord.status}
-                              </Badge>
-                            ))
-                          ) : (
-                            <span className="text-sm text-[#737373]">
-                              No licenses assigned.
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                      <FactionLicenseManager
+                        factionId={faction.id}
+                        isFactionOwner={isFactionOwner}
+                      />
 
                       <div className="mt-6 flex flex-wrap gap-3">
                         <Button

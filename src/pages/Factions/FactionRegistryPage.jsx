@@ -4,6 +4,7 @@ import Badge from "../../components/ui/Badge"
 import Button from "../../components/ui/Button"
 import Card from "../../components/ui/Card"
 import { supabase } from "../../lib/supabase"
+import FactionLicensesCard from "./components/FactionLicensesCard"
 
 function FactionRegistryPage() {
   const { factionTag } = useParams()
@@ -98,6 +99,7 @@ function FactionRegistryPage() {
           )
         `)
         .eq("faction_id", factionRecord.id)
+        .eq("status", "active")
         .order("created_at"),
     ])
 
@@ -183,18 +185,6 @@ function FactionRegistryPage() {
       `Your membership request was sent to ${faction.name}.`
     )
     setIsRequestingMembership(false)
-  }
-
-  function getLicenseBadgeVariant(status) {
-    if (status === "active") {
-      return "success"
-    }
-
-    if (status === "rejected" || status === "suspended") {
-      return "danger"
-    }
-
-    return "gold"
   }
 
   if (isLoading) {
@@ -373,32 +363,7 @@ function FactionRegistryPage() {
               </div>
             </Card>
 
-            <Card
-              title="Operating Licenses"
-              subtitle="Registered industrial authorizations"
-            >
-              {licenses.length > 0 ? (
-                <div className="flex flex-wrap gap-3">
-                  {licenses.map((license) => (
-                    <Link
-                      key={license.id}
-                      to={`/licenses/${license.license_types?.slug}`}
-                    >
-                      <Badge
-                        variant={getLicenseBadgeVariant(license.status)}
-                      >
-                        {license.license_types?.name ?? "Unknown License"} -{" "}
-                        {license.status}
-                      </Badge>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-[#737373]">
-                  No licenses are currently assigned to this faction.
-                </p>
-              )}
-            </Card>
+            <FactionLicensesCard licenses={licenses} />
 
             <Card
               title="Registered Members"
