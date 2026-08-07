@@ -106,6 +106,7 @@ function DashboardPage() {
         .from("faction_memberships")
         .select("*")
         .eq("profile_id", currentUser.id)
+        .in("status", ["pending", "approved"])
         .maybeSingle()
 
     if (membershipError) {
@@ -118,7 +119,9 @@ function DashboardPage() {
     setFaction(null)
     setPendingMemberships([])
 
-    if (membershipRecord?.faction_id) {
+    if (
+      membershipRecord?.faction_id &&
+      ["pending", "approved"].includes(membershipRecord.status)) {
       const { data: factionRecord, error: factionError } = await supabase
         .from("factions")
         .select("*")
