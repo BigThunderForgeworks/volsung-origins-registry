@@ -67,7 +67,8 @@ function FactionPage() {
             short_name,
             slug
           )
-        `),
+        `)
+        .eq("status", "active"),
 
       supabase
         .from("license_types")

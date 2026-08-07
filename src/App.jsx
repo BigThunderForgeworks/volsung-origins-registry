@@ -15,10 +15,13 @@ import LoreEntryPage from "./pages/Lore/LoreEntryPage"
 import LorePage from "./pages/Lore/LorePage"
 import NewsPage from "./pages/News/NewsPage"
 import NotFoundPage from "./pages/NotFound/NotFoundPage"
+import ScrollToTop from "./components/layout/ScrollToTop"
 
 function App() {
   return (
     <HashRouter>
+      <ScrollToTop />
+
       <div className="flex min-h-screen flex-col bg-[#171B1F] text-[#D9D9D9]">
         <Header />
 
