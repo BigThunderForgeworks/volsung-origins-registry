@@ -16,6 +16,10 @@ import LorePage from "./pages/Lore/LorePage"
 import NewsPage from "./pages/News/NewsPage"
 import NotFoundPage from "./pages/NotFound/NotFoundPage"
 import ScrollToTop from "./components/layout/ScrollToTop"
+import OrganizationMigrationPage from "./pages/OrganizationMigration/OrganizationMigrationPage"
+import CompanyDirectoryPage from "./pages/Companies/CompanyDirectoryPage"
+import CompanyPage from "./pages/Companies/CompanyPage"
+import CreateCompanyPage from "./pages/Companies/CreateCompanyPage"
 
 function App() {
   return (
@@ -56,6 +60,11 @@ function App() {
             />
 
             <Route
+              path="/companies"
+              element={<CompanyDirectoryPage />}
+            />
+
+            <Route
               path="/licenses/:licenseSlug"
               element={<LicensePage />}
             />
@@ -69,9 +78,24 @@ function App() {
               element={<LoreEntryPage />}
             />
 
+            <Route
+              path="/companies/:companyTag"
+              element={<CompanyPage />}
+            />
+
+            <Route
+              path="/companies/create"
+              element={<CreateCompanyPage />}
+            />
+
             <Route path="/admin" element={<AdminPage />} />
 
             <Route path="*" element={<NotFoundPage />} />
+
+            <Route
+              path="/organization-migration"
+              element={<OrganizationMigrationPage />}
+            />
           </Routes>
         </div>
 

@@ -5,6 +5,7 @@ import Button from "../../components/ui/Button"
 import Card from "../../components/ui/Card"
 import { supabase } from "../../lib/supabase"
 import FactionLicenseManager from "./components/FactionLicenseManager"
+import OrganizationMigrationNotice from "./components/OrganizationMigrationNotice"
 
 function DashboardPage() {
   const navigate = useNavigate()
@@ -389,6 +390,11 @@ function DashboardPage() {
             </Card>
 
             <div className="space-y-8">
+              <OrganizationMigrationNotice
+                factionId={faction?.id ?? null}
+                isFactionOwner={isFactionOwner}
+              />
+              
               {faction ? (
                 <Card
                   title={faction.name}
