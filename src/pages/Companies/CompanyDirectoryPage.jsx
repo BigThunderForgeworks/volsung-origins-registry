@@ -61,6 +61,29 @@ function CompanyDirectoryPage() {
     setIsLoading(false)
   }
 
+  const factionGroups = companies.reduce((groups, company) => {
+    if (!company.factions) {
+      return groups
+    }
+
+    const factionId = company.factions.id
+
+    if (!groups[factionId]) {
+      groups[factionId] = {
+        faction: company.factions,
+        companies: [],
+      }
+    }
+
+    groups[factionId].companies.push(company)
+
+    return groups
+  }, {})
+
+  const independentCompanies = companies.filter(
+    (company) => !company.factions
+  )
+
   if (isLoading) {
     return (
       <main className="min-h-screen bg-[#171B1F] px-6 py-16 text-[#D9D9D9]">
@@ -88,8 +111,8 @@ function CompanyDirectoryPage() {
           </h1>
 
           <p className="mt-5 max-w-3xl leading-7 text-[#737373]">
-            Registered commercial organizations operating throughout the
-            system. Companies may operate independently or beneath a larger
+            Registered Companies represent player-operated organizations and commercial
+            entities. Companies may operate independently or beneath a registered
             Faction umbrella.
           </p>
         </div>
@@ -107,14 +130,63 @@ function CompanyDirectoryPage() {
             </p>
           </Card>
         ) : (
-          <div className="space-y-6">
-            {companies.map((company) => (
-              <CompanyCard
-                key={company.id}
-                company={company}
-              />
-            ))}
-          </div>
+        <div className="space-y-12">
+          {Object.values(factionGroups).map(
+            ({ faction, companies: factionCompanies }) => (
+              <section key={faction.id}>
+                <div className="mb-5 border-b border-[#384A59] pb-4">
+                  <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#99692E]">
+                    Faction Umbrella
+                  </p>
+
+                  <h2 className="mt-2 text-2xl font-bold uppercase tracking-wider">
+                    {faction.name}
+                  </h2>
+
+                  <p className="mt-1 text-sm uppercase tracking-[0.2em] text-[#737373]">
+                    [{faction.short_name}]
+                  </p>
+                </div>
+
+                <div className="space-y-6">
+                  {factionCompanies.map((company) => (
+                    <CompanyCard
+                      key={company.id}
+                      company={company}
+                    />
+                  ))}
+                </div>
+              </section>
+            )
+          )}
+
+          {independentCompanies.length > 0 && (
+            <section>
+              <div className="mb-5 border-b border-[#384A59] pb-4">
+                <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#99692E]">
+                  Independent Operations
+                </p>
+
+                <h2 className="mt-2 text-2xl font-bold uppercase tracking-wider">
+                  Independent Companies
+                </h2>
+
+                <p className="mt-2 max-w-3xl leading-7 text-[#737373]">
+                  Companies operating without a registered Faction affiliation.
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                {independentCompanies.map((company) => (
+                  <CompanyCard
+                    key={company.id}
+                    company={company}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
         )}
       </div>
     </main>

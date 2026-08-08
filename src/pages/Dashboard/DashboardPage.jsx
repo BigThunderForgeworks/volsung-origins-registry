@@ -6,6 +6,10 @@ import Card from "../../components/ui/Card"
 import { supabase } from "../../lib/supabase"
 import FactionLicenseManager from "./components/FactionLicenseManager"
 import OrganizationMigrationNotice from "./components/OrganizationMigrationNotice"
+import CompanyStatusCard from "./components/CompanyStatusCard"
+import CompanyMembershipRequestsCard from "./components/CompanyMembershipRequestsCard"
+import CompanyManagementCard from "./components/CompanyManagementCard"
+import CompanyAffiliationRequestsCard from "../../components/CompanyAffiliationRequestsCard"
 
 function DashboardPage() {
   const navigate = useNavigate()
@@ -498,6 +502,7 @@ function DashboardPage() {
                   title="Faction Status"
                   subtitle="Industrial affiliation"
                 >
+                  
                   <p className="leading-7 text-[#737373]">
                     You are not currently affiliated with a registered
                     faction.
@@ -518,6 +523,18 @@ function DashboardPage() {
                     </Button>
                   </div>
                 </Card>
+              )}
+
+              <CompanyStatusCard />
+
+              <CompanyMembershipRequestsCard />
+
+              <CompanyManagementCard />
+
+              {faction && isFactionOwner && (
+                <CompanyAffiliationRequestsCard
+                  factionId={faction.id}
+                />
               )}
 
               {faction && isFactionOwner && (

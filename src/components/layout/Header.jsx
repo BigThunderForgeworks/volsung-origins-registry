@@ -90,6 +90,10 @@ function Header() {
             Factions
           </NavLink>
 
+          <NavLink to="/companies" className={getNavClass}>
+            Companies
+          </NavLink>
+
           <NavLink to="/licenses" className={getNavClass}>
             Licenses
           </NavLink>

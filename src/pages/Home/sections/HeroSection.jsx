@@ -104,7 +104,7 @@ function HeroSection() {
           </h1>
 
           <p className="mt-6 max-w-2xl text-lg leading-8 text-[#A6A6A6]">
-            Access the central personnel, faction, and licensing network for
+            Access the central personnel, faction, company, and licensing network for
             the Volsung Origins server.
           </p>
 

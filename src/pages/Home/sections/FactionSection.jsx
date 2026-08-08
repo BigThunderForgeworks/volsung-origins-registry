@@ -122,7 +122,7 @@ function FactionSection() {
               </p>
 
               <p className="mt-2 text-[#737373]">
-                Newly registered factions will appear here.
+                Active registered Factions will appear here.
               </p>
             </div>
           </div>
@@ -195,7 +195,7 @@ function FactionSection() {
                   <div className="mt-6 border-t border-[#384A59] pt-6">
                     <div className="flex items-center justify-between">
                       <span className="text-[#737373]">
-                        Registered Members
+                        Faction Personnel
                       </span>
 
                       <span className="text-2xl font-bold text-[#D9D9D9]">

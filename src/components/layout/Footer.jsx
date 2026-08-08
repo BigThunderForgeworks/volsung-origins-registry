@@ -92,7 +92,7 @@ function Footer() {
           </Link>
 
           <p className="mt-4 max-w-sm text-sm leading-6 text-[#737373]">
-            The official personnel, faction, licensing, and industrial registry
+            The official personnel, faction, company, licensing, and industrial registry
             for the Volsung Origins Space Engineers server.
           </p>
 
@@ -113,6 +113,10 @@ function Footer() {
             <FooterLink to="/">Home</FooterLink>
 
             <FooterLink to="/factions">Factions</FooterLink>
+
+            <FooterLink to="/companies">
+              Companies
+            </FooterLink>
 
             <FooterLink to="/licenses">Licenses</FooterLink>
 
@@ -196,7 +200,7 @@ function Footer() {
               </span>
 
               <span className="font-bold text-[#99692E]">
-                v1.1.0
+                v2.0.0
               </span>
             </div>
           </div>

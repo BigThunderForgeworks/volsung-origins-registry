@@ -6,6 +6,7 @@ import { supabase } from "../../lib/supabase"
 import CompanyHeader from "./components/CompanyHeader"
 import CompanyLicenseList from "./components/CompanyLicenseList"
 import CompanyPersonnelList from "./components/CompanyPersonnelList"
+import CompanyJoinCard from "./components/CompanyJoinCard"
 
 function CompanyPage() {
   const navigate = useNavigate()
@@ -151,6 +152,10 @@ function CompanyPage() {
 
         <div className="mt-8">
           <CompanyHeader company={company} />
+        </div>
+
+        <div className="mt-8">
+          <CompanyJoinCard company={company} />
         </div>
 
         <div className="mt-8">

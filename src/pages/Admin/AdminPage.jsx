@@ -10,6 +10,10 @@ import PendingMembershipsCard from "./components/PendingMembershipsCard"
 import PendingLicensesCard from "./components/PendingLicensesCard"
 import AdminStats from "./components/AdminStats"
 import LoreAdminPanel from "../Lore/admin/LoreAdminPanel"
+import AdminCompanyMembershipRequests from "./components/AdminCompanyMembershipRequests"
+import RegisteredCompaniesCard from "./components/RegisteredCompaniesCard"
+import AdminCompanyLicensesCard from "./components/AdminCompanyLicensesCard"
+import CompanyAffiliationRequestsCard from "../../components/CompanyAffiliationRequestsCard"
 
 function AdminPage() {
   const navigate = useNavigate()
@@ -458,6 +462,15 @@ async function handleRemoveFactionMember(person) {
         
 
         <div className="mt-10 space-y-8">
+          <AdminCompanyMembershipRequests />
+
+          <RegisteredCompaniesCard
+            onNavigate={navigate}
+          />
+
+          <AdminCompanyLicensesCard />
+
+          <CompanyAffiliationRequestsCard adminMode />
 
           <LoreAdminPanel />
 

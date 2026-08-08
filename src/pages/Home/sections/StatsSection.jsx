@@ -13,19 +13,19 @@ function StatsSection() {
       id: 2,
       label: "Registered Factions",
       value: "—",
-      detail: "Recognized industrial groups",
+      detail: "Recognized server-level factions",
     },
     {
       id: 3,
-      label: "Active Licenses",
+      label: "Registered Companies",
       value: "—",
-      detail: "— Active • — Pending",
+      detail: "Active corporate organizations",
     },
     {
       id: 4,
-      label: "Open Recruitment",
+      label: "Active Licenses",
       value: "—",
-      detail: "Factions accepting applicants",
+      detail: "Faction and Company operating licenses",
     },
   ])
 
@@ -41,9 +41,23 @@ function StatsSection() {
     const [
       { count: personnelCount, error: personnelError },
       { count: factionCount, error: factionError },
-      { count: activeLicenseCount, error: activeLicenseError },
-      { count: pendingLicenseCount, error: pendingLicenseError },
-      { count: recruitingCount, error: recruitingError },
+      { count: companyCount, error: companyError },
+      {
+        count: activeFactionLicenseCount,
+        error: activeFactionLicenseError,
+      },
+      {
+        count: pendingFactionLicenseCount,
+        error: pendingFactionLicenseError,
+      },
+      {
+        count: activeCompanyLicenseCount,
+        error: activeCompanyLicenseError,
+      },
+      {
+        count: pendingCompanyLicenseCount,
+        error: pendingCompanyLicenseError,
+      },
     ] = await Promise.all([
       supabase
         .from("profiles")
@@ -51,6 +65,11 @@ function StatsSection() {
 
       supabase
         .from("factions")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "active"),
+
+      supabase
+        .from("companies")
         .select("*", { count: "exact", head: true })
         .eq("status", "active"),
 
@@ -65,23 +84,37 @@ function StatsSection() {
         .eq("status", "pending"),
 
       supabase
-        .from("factions")
+        .from("company_licenses")
         .select("*", { count: "exact", head: true })
-        .eq("status", "active")
-        .eq("recruiting", true),
+        .eq("status", "active"),
+
+      supabase
+        .from("company_licenses")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending"),
     ])
 
     const firstError =
       personnelError ||
       factionError ||
-      activeLicenseError ||
-      pendingLicenseError ||
-      recruitingError
+      companyError ||
+      activeFactionLicenseError ||
+      pendingFactionLicenseError ||
+      activeCompanyLicenseError ||
+      pendingCompanyLicenseError
 
     if (firstError) {
       setErrorMessage(firstError.message)
       return
     }
+
+    const activeLicenseCount =
+      (activeFactionLicenseCount ?? 0) +
+      (activeCompanyLicenseCount ?? 0)
+
+    const pendingLicenseCount =
+      (pendingFactionLicenseCount ?? 0) +
+      (pendingCompanyLicenseCount ?? 0)
 
     setStats([
       {
@@ -94,27 +127,25 @@ function StatsSection() {
         id: 2,
         label: "Registered Factions",
         value: factionCount ?? 0,
-        detail: "Recognized industrial groups",
+        detail: "Recognized server-level factions",
       },
       {
         id: 3,
-        label: "Active Licenses",
-        value: activeLicenseCount ?? 0,
-        detail: `${activeLicenseCount ?? 0} Active • ${
-          pendingLicenseCount ?? 0
-        } Pending`,
+        label: "Registered Companies",
+        value: companyCount ?? 0,
+        detail: "Active corporate organizations",
       },
       {
         id: 4,
-        label: "Open Recruitment",
-        value: recruitingCount ?? 0,
-        detail: "Factions accepting applicants",
+        label: "Active Licenses",
+        value: activeLicenseCount,
+        detail: `${activeLicenseCount} Active • ${pendingLicenseCount} Pending`,
       },
     ])
   }
 
   return (
-    <section className="border-b border-[#384A59] bg-[#171B1F] px-6 py-12">
+    <section className="bg-[#171B1F] px-6 py-16 text-[#D9D9D9]">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8">
           <p className="text-xs font-bold uppercase tracking-[0.35em] text-[#99692E]">

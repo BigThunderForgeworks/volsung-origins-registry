@@ -20,6 +20,7 @@ import OrganizationMigrationPage from "./pages/OrganizationMigration/Organizatio
 import CompanyDirectoryPage from "./pages/Companies/CompanyDirectoryPage"
 import CompanyPage from "./pages/Companies/CompanyPage"
 import CreateCompanyPage from "./pages/Companies/CreateCompanyPage"
+import ManageCompanyPage from "./pages/Companies/ManageCompanyPage"
 
 function App() {
   return (
@@ -86,6 +87,11 @@ function App() {
             <Route
               path="/companies/create"
               element={<CreateCompanyPage />}
+            />
+
+            <Route
+              path="/companies/:companyTag/manage"
+              element={<ManageCompanyPage />}
             />
 
             <Route path="/admin" element={<AdminPage />} />
